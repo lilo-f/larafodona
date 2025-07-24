@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Admin | Raven Studio</title>
+    <link rel="icon" href="/img/raven.ico" type="image/x-icon">
+    <meta name="description" content="Painel administrativo do Raven Studio">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Teko:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-black: #000000;
+            --secondary-black: #0a0a0a;
+            --dark-gray: #1a1a1a;
+            --light-gray: #d1d5db;
+            --soft-blue: #3b82f6;
+            --neon-blue: #00f0ff;
+            --soft-green: #22c55e;
+            --soft-red: #ef4444;
+            --soft-yellow: #f59e0b;
+            --font-display: 'Bebas Neue', cursive;
+            --font-body: 'Orbitron', sans-serif;
+            --font-tech: 'Teko', sans-serif;
+            --transition-smooth: all 0.3s ease-in-out;
+            --gradient-blue: linear-gradient(135deg, #3b82f6 0%, #00f0ff 100%);
+            --gradient-dark: radial-gradient(ellipse at bottom, #0a0a0a 0%, #000000 100%);
+            --soft-glow-blue: 0 0 15px rgba(59, 130, 246, 0.5);
+        }
+
+        body {
+            background: var(--gradient-dark);
+            color: var(--light-gray);
+            font-family: var(--font-body);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        /* Navbar Admin */
+        .admin-navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(59, 130, 246, 0.3);
+            z-index: 1000;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .admin-nav-brand img {
+            height: 40px;
+        }
+
+        .admin-nav-title {
+            font-family: var(--font-display);
+            font-size: 1.8rem;
+            color: var(--soft-blue);
+            text-shadow: var(--soft-glow-blue);
+            letter-spacing: 1px;
+        }
+
+        .admin-nav-controls {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .admin-logout-btn {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--soft-red);
+            color: var(--soft-red);
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            font-family: var(--font-body);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .admin-logout-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        /* Sidebar */
+        .admin-container {
+            display: flex;
+            min-height: calc(100vh - 70px);
+            margin-top: 70px;
+        }
+
+        .admin-sidebar {
+            width: 280px;
+            background: rgba(15, 15, 15, 0.9);
+            border-right: 1px solid rgba(59, 130, 246, 0.2);
+            padding: 2rem 1rem;
+            position: fixed;
+            height: calc(100vh - 70px);
+            overflow-y: auto;
+        }
+
+        .admin-sidebar-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .sidebar-section {
+            margin-bottom: 2rem;
+        }
+
+        .sidebar-section h3 {
+            font-family: var(--font-tech);
+            font-size: 1.3rem;
+            color: var(--soft-blue);
+            margin-bottom: 1rem;
+            padding-left: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .sidebar-item {
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-family: var(--font-body);
+            font-size: 0.95rem;
+        }
+
+        .sidebar-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-item:hover {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--soft-blue);
+        }
+
+        .sidebar-item.active {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--soft-blue);
+            border-left: 3px solid var(--soft-blue);
+        }
+
+        .sidebar-badge {
+            margin-left: auto;
+            background: var(--soft-red);
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        /* Main Content */
+        .admin-main {
+            flex: 1;
+            margin-left: 280px;
+            padding: 2rem;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .admin-title {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            color: var(--soft-blue);
+            margin: 0;
+        }
+
+        .admin-subtitle {
+            font-family: var(--font-body);
+            color: var(--light-gray);
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(15, 15, 15, 0.9);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            transition: var(--transition-smooth);
+        }
+
+        .stat-card:hover {
+            border-color: var(--soft-blue);
+            box-shadow: var(--soft-glow-blue);
+        }
+
+        .stat-title {
+            font-family: var(--font-body);
+            color: var(--light-gray);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .stat-value {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            margin: 0;
+        }
+
+        .stat-change {
+            font-family: var(--font-body);
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .stat-change.up {
+            color: var(--soft-green);
+        }
+
+        .stat-change.down {
+            color: var(--soft-red);
+        }
+
+        /* Tables */
+        .admin-table-container {
+            background: rgba(15, 15, 15, 0.9);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            margin-bottom: 2rem;
+            overflow-x: auto;
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: var(--font-body);
+        }
+
+        .admin-table th {
+            text-align: left;
+            padding: 1rem;
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--soft-blue);
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+        }
+
+        .admin-table td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+            vertical-align: middle;
+        }
+
+        .admin-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .admin-table tr:hover td {
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--soft-blue);
+        }
+
+        .status-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            display: inline-block;
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--soft-yellow);
+            border: 1px solid var(--soft-yellow);
+        }
+
+        .status-approved {
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--soft-green);
+            border: 1px solid var(--soft-green);
+        }
+
+        .status-completed {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--soft-blue);
+            border: 1px solid var(--soft-blue);
+        }
+
+        .status-cancelled {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--soft-red);
+            border: 1px solid var(--soft-red);
+        }
+
+        .action-btn {
+            padding: 0.5rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            border: none;
+            font-family: var(--font-body);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .action-btn.view {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--soft-blue);
+            border: 1px solid var(--soft-blue);
+        }
+
+        .action-btn.edit {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--soft-yellow);
+            border: 1px solid var(--soft-yellow);
+        }
+
+        .action-btn.delete {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--soft-red);
+            border: 1px solid var(--soft-red);
+        }
+
+        .action-btn:hover {
+            opacity: 0.8;
+        }
+
+        /* Forms */
+        .admin-form {
+            background: rgba(15, 15, 15, 0.9);
+            border-radius: 12px;
+            padding: 2rem;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-family: var(--font-body);
+            color: var(--light-gray);
+            font-size: 0.9rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            background: rgba(30, 30, 30, 0.8);
+            border: 1px solid rgba(59, 130, 246, 0.5);
+            border-radius: 8px;
+            color: white;
+            font-family: var(--font-body);
+            font-size: 0.9rem;
+            transition: var(--transition-smooth);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: var(--soft-blue);
+            box-shadow: var(--soft-glow-blue);
+            outline: none;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            font-family: var(--font-body);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--gradient-blue);
+            color: var(--primary-black);
+            font-weight: bold;
+        }
+
+        .btn-secondary {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--soft-blue);
+            border: 1px solid var(--soft-blue);
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--soft-red);
+            border: 1px solid var(--soft-red);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 2000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: var(--secondary-black);
+            border-radius: 12px;
+            border: 1px solid var(--soft-blue);
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 2rem;
+            position: relative;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: var(--light-gray);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .modal-title {
+            font-family: var(--font-display);
+            color: var(--soft-blue);
+            font-size: 1.8rem;
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .admin-sidebar {
+                width: 240px;
+                padding: 1.5rem 0.5rem;
+            }
+            
+            .admin-main {
+                margin-left: 240px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .admin-nav-title {
+                font-size: 1.5rem;
+            }
+            
+            .admin-container {
+                flex-direction: column;
+            }
+            
+            .admin-sidebar {
+                position: static;
+                width: 100%;
+                height: auto;
+                padding: 1rem;
+            }
+            
+            .admin-main {
+                margin-left: 0;
+                padding: 1.5rem;
+            }
+            
+            .admin-stats {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .sidebar-menu {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+            
+            .sidebar-item {
+                flex: 1 0 calc(50% - 0.5rem);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .admin-navbar {
+                padding: 1rem;
+            }
+            
+            .admin-nav-title {
+                font-size: 1.3rem;
+            }
+            
+            .admin-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar-item {
+                flex: 1 0 100%;
+            }
+            
+            .admin-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar Admin -->
+    <nav class="admin-navbar">
+        <div class="admin-nav-brand">
+            <img src="/img/logo.png" alt="Raven Studio">
+            <div class="admin-nav-title">PAINEL ADMINISTRATIVO</div>
+        </div>
+        <div class="admin-nav-controls">
+            <button class="admin-logout-btn" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i> Sair
+            </button>
+        </div>
+    </nav>
+
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="admin-sidebar-menu">
+                <div class="sidebar-section">
+                    <h3>Geral</h3>
+                    <div class="sidebar-item active" data-section="dashboard">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </div>
+                </div>
+                
+                <div class="sidebar-section">
+                    <h3>Usuários</h3>
+                    <div class="sidebar-item" data-section="users">
+                        <i class="fas fa-users"></i> Todos Usuários
+                        <span class="sidebar-badge" id="users-count">0</span>
+                    </div>
+                    <div class="sidebar-item" data-section="new-user">
+                        <i class="fas fa-user-plus"></i> Adicionar Usuário
+                    </div>
+                </div>
+                
+                <div class="sidebar-section">
+                    <h3>Agendamentos</h3>
+                    <div class="sidebar-item" data-section="appointments">
+                        <i class="fas fa-calendar-alt"></i> Todos Agendamentos
+                        <span class="sidebar-badge" id="appointments-count">0</span>
+                    </div>
+                    <div class="sidebar-item" data-section="pending-appointments">
+                        <i class="fas fa-clock"></i> Pendentes
+                        <span class="sidebar-badge" id="pending-count">0</span>
+                    </div>
+                </div>
+                
+                <div class="sidebar-section">
+                    <h3>Loja</h3>
+                    <div class="sidebar-item" data-section="products">
+                        <i class="fas fa-box-open"></i> Produtos
+                    </div>
+                    <div class="sidebar-item" data-section="orders">
+                        <i class="fas fa-shopping-bag"></i> Pedidos
+                        <span class="sidebar-badge" id="orders-count">0</span>
+                    </div>
+                    <div class="sidebar-item" data-section="wishlist">
+                        <i class="fas fa-heart"></i> Lista de Desejos
+                    </div>
+                </div>
+                
+                <div class="sidebar-section">
+                    <h3>Configurações</h3>
+                    <div class="sidebar-item" data-section="artists">
+                        <i class="fas fa-paint-brush"></i> Artistas
+                    </div>
+                    <div class="sidebar-item" data-section="settings">
+                        <i class="fas fa-cog"></i> Configurações
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <!-- Dashboard Section (Default) -->
+            <section id="dashboard-section" class="admin-section">
+                <div class="admin-header">
+                    <div>
+                        <h1 class="admin-title">Dashboard</h1>
+                        <p class="admin-subtitle">Visão geral do sistema</p>
+                    </div>
+                    <div>
+                        <button class="btn btn-secondary">
+                            <i class="fas fa-download"></i> Relatório
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="admin-stats">
+                    <div class="stat-card">
+                        <div class="stat-title">
+                            <i class="fas fa-users"></i> Usuários Registrados
+                        </div>
+                        <p class="stat-value" id="total-users">0</p>
+                        <div class="stat-change up">
+                            <i class="fas fa-arrow-up"></i> 12% desde o último mês
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-title">
+                            <i class="fas fa-calendar-alt"></i> Agendamentos
+                        </div>
+                        <p class="stat-value" id="total-appointments">0</p>
+                        <div class="stat-change up">
+                            <i class="fas fa-arrow-up"></i> 8% desde a semana passada
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-title">
+                            <i class="fas fa-shopping-bag"></i> Pedidos
+                        </div>
+                        <p class="stat-value" id="total-orders">0</p>
+                        <div class="stat-change down">
+                            <i class="fas fa-arrow-down"></i> 5% desde ontem
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-title">
+                            <i class="fas fa-dollar-sign"></i> Receita Mensal
+                        </div>
+                        <p class="stat-value">R$ <span id="total-revenue">0</span></p>
+                        <div class="stat-change up">
+                            <i class="fas fa-arrow-up"></i> 15% desde o mês passado
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="admin-table-container">
+                    <h3>Últimos Agendamentos</h3>
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Cliente</th>
+                                <th>Artista</th>
+                                <th>Data</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recent-appointments">
+                            <!-- Dinâmico -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="admin-table-container">
+                    <h3>Últimos Pedidos</h3>
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Pedido #</th>
+                                <th>Cliente</th>
+                                <th>Valor</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recent-orders">
+                            <!-- Dinâmico -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <!-- Users Section -->
+            <section id="users-section" class="admin-section" style="display:none;">
+                <div class="admin-header">
+                    <div>
+                        <h1 class="admin-title">Gerenciar Usuários</h1>
+                        <p class="admin-subtitle">Todos os usuários cadastrados no sistema</p>
+                    </div>
+                    <div>
+                        <button class="btn btn-secondary" id="export-users">
+                            <i class="fas fa-file-export"></i> Exportar
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="admin-table-container">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:1rem;">
+                        <div style="flex:1; max-width:300px;">
+                            <input type="text" placeholder="Pesquisar usuários..." style="width:100%;">
+                        </div>
+                        <button class="btn btn-primary" id="add-user-btn">
+                            <i class="fas fa-plus"></i> Adicionar Usuário
+                        </button>
+                    </div>
+                    
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Avatar</th>
+                                <th>Nome</th>
+                                <th>Email</th>
+                                <th>Cadastro</th>
+                                <th>Tipo</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-table-body">
+                            <!-- Dinâmico -->
+                        </tbody>
+                    </table>
+                    
+                    <div style="display:flex; justify-content:space-between; margin-top:1rem;">
+                        <div>Mostrando 1-10 de <span id="total-users-count">0</span> usuários</div>
+                        <div style="display:flex; gap:0.5rem;">
+                            <button class="btn btn-secondary" disabled>Anterior</button>
+                            <button class="btn btn-secondary">Próximo</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Appointments Section -->
+            <section id="appointments-section" class="admin-section" style="display:none;">
+                <div class="admin-header">
+                    <div>
+                        <h1 class="admin-title">Agendamentos</h1>
+                        <p class="admin-subtitle">Gerencie todos os agendamentos de tatuagem</p>
+                    </div>
+                    <div>
+                        <button class="btn btn-secondary">
+                            <i class="fas fa-filter"></i> Filtros
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="admin-table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Cliente</th>
+                                <th>Artista</th>
+                                <th>Data/Hora</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="appointments-table-body">
+                            <!-- Dinâmico -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <!-- Products Section -->
+            <section id="products-section" class="admin-section" style="display:none;">
+                <div class="admin-header">
+                    <div>
+                        <h1 class="admin-title">Produtos</h1>
+                        <p class="admin-subtitle">Gerencie os produtos da loja</p>
+                    </div>
+                    <div>
+                        <button class="btn btn-primary" id="add-product-btn">
+                            <i class="fas fa-plus"></i> Adicionar Produto
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="admin-table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Imagem</th>
+                                <th>Nome</th>
+                                <th>Categoria</th>
+                                <th>Preço</th>
+                                <th>Estoque</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="products-table-body">
+                            <!-- Dinâmico -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <!-- Orders Section -->
+            <section id="orders-section" class="admin-section" style="display:none;">
+                <div class="admin-header">
+                    <div>
+                        <h1 class="admin-title">Pedidos</h1>
+                        <p class="admin-subtitle">Gerencie todos os pedidos da loja</p>
+                    </div>
+                    <div>
+                        <button class="btn btn-secondary">
+                            <i class="fas fa-filter"></i> Filtros
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="admin-table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Pedido #</th>
+                                <th>Cliente</th>
+                                <th>Data</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orders-table-body">
+                            <!-- Dinâmico -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <!-- Wishlist Section -->
+            <section id="wishlist-section" class="admin-section" style="display:none;">
+                <div class="admin-header">
+                    <div>
+                        <h1 class="admin-title">Lista de Desejos</h1>
+                        <p class="admin-subtitle">Produtos marcados como favoritos pelos clientes</p>
+                    </div>
+                </div>
+                
+                <div class="admin-table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Produto</th>
+                                <th>Clientes</th>
+                                <th>Popularidade</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="wishlist-table-body">
+                            <!-- Dinâmico -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <!-- Artists Section -->
+            <section id="artists-section" class="admin-section" style="display:none;">
+                <div class="admin-header">
+                    <div>
+                        <h1 class="admin-title">Artistas</h1>
+                        <p class="admin-subtitle">Gerencie os artistas do estúdio</p>
+                    </div>
+                    <div>
+                        <button class="btn btn-primary" id="add-artist-btn">
+                            <i class="fas fa-plus"></i> Adicionar Artista
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="admin-table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Foto</th>
+                                <th>Nome</th>
+                                <th>Especialidade</th>
+                                <th>Agendamentos</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="artists-table-body">
+                            <!-- Dinâmico -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+    
+    <!-- Add User Modal -->
+    <div class="modal-overlay" id="user-modal">
+        <div class="modal-content">
+            <button class="modal-close" id="close-user-modal">&times;</button>
+            <h2 class="modal-title">Adicionar Novo Usuário</h2>
+            
+            <form class="admin-form" id="user-form">
+                <div class="form-group">
+                    <label for="user-name">Nome Completo</label>
+                    <input type="text" id="user-name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="user-email">Email</label>
+                    <input type="email" id="user-email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="user-password">Senha</label>
+                    <input type="password" id="user-password" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="user-type">Tipo de Usuário</label>
+                    <select id="user-type" required>
+                        <option value="client">Cliente</option>
+                        <option value="artist">Artista</option>
+                        <option value="admin">Administrador</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="user-avatar">Avatar (URL)</label>
+                    <input type="text" id="user-avatar">
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-user">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar Usuário</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Add Product Modal -->
+    <div class="modal-overlay" id="product-modal">
+        <div class="modal-content">
+            <button class="modal-close" id="close-product-modal">&times;</button>
+            <h2 class="modal-title">Adicionar Novo Produto</h2>
+            
+            <form class="admin-form" id="product-form">
+                <div class="form-group">
+                    <label for="product-name">Nome do Produto</label>
+                    <input type="text" id="product-name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="product-category">Categoria</label>
+                    <select id="product-category" required>
+                        <option value="machines">Máquinas de Tatuagem</option>
+                        <option value="inks">Tintas</option>
+                        <option value="needles">Agulhas</option>
+                        <option value="accessories">Acessórios</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="product-price">Preço (R$)</label>
+                    <input type="number" id="product-price" step="0.01" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="product-old-price">Preço Antigo (R$) - Opcional</label>
+                    <input type="number" id="product-old-price" step="0.01">
+                </div>
+                
+                <div class="form-group">
+                    <label for="product-stock">Estoque</label>
+                    <input type="number" id="product-stock" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="product-description">Descrição</label>
+                    <textarea id="product-description" rows="4" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="product-image">Imagem (URL)</label>
+                    <input type="text" id="product-image" required>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-product">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar Produto</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Appointment Detail Modal -->
+    <div class="modal-overlay" id="appointment-modal">
+        <div class="modal-content">
+            <button class="modal-close" id="close-appointment-modal">&times;</button>
+            <h2 class="modal-title">Detalhes do Agendamento</h2>
+            
+            <div class="admin-form">
+                <div class="form-group">
+                    <label>Cliente</label>
+                    <p id="modal-client-name" style="padding:0.5rem 0; font-size:1.1rem;"></p>
+                </div>
+                
+                <div class="form-group">
+                    <label>Artista</label>
+                    <p id="modal-artist-name" style="padding:0.5rem 0; font-size:1.1rem;"></p>
+                </div>
+                
+                <div class="form-group">
+                    <label>Data e Hora</label>
+                    <p id="modal-appointment-date" style="padding:0.5rem 0; font-size:1.1rem;"></p>
+                </div>
+                
+                <div class="form-group">
+                    <label>Estilo</label>
+                    <p id="modal-appointment-style" style="padding:0.5rem 0; font-size:1.1rem;"></p>
+                </div>
+                
+                <div class="form-group">
+                    <label>Descrição</label>
+                    <p id="modal-appointment-description" style="padding:0.5rem 0; font-size:1.1rem;"></p>
+                </div>
+                
+                <div class="form-group">
+                    <label>Orçamento</label>
+                    <p id="modal-appointment-budget" style="padding:0.5rem 0; font-size:1.1rem;"></p>
+                </div>
+                
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="modal-appointment-status" class="form-control">
+                        <option value="pending">Pendente</option>
+                        <option value="approved">Aprovado</option>
+                        <option value="completed">Concluído</option>
+                        <option value="cancelled">Cancelado</option>
+                    </select>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-appointment">Fechar</button>
+                    <button type="button" class="btn btn-primary" id="save-appointment">Salvar Alterações</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Verificar se o usuário é admin
+        document.addEventListener('DOMContentLoaded', function() {
+            const user = JSON.parse(localStorage.getItem('ravenStudioCurrentUser'));
+            
+            if (!user || user.role !== 'admin') {
+                window.location.href = '/pages/login.html';
+                return;
+            }
+            
+            // Carregar dados iniciais
+            loadDashboardData();
+            setupEventListeners();
+        });
+        
+        function loadDashboardData() {
+            // Simular carregamento de dados
+            setTimeout(() => {
+                // Estatísticas
+                document.getElementById('total-users').textContent = '142';
+                document.getElementById('total-appointments').textContent = '28';
+                document.getElementById('total-orders').textContent = '19';
+                document.getElementById('total-revenue').textContent = '8.750,00';
+                
+                // Badges
+                document.getElementById('users-count').textContent = '142';
+                document.getElementById('appointments-count').textContent = '28';
+                document.getElementById('pending-count').textContent = '5';
+                document.getElementById('orders-count').textContent = '19';
+                
+                // Agendamentos recentes
+                const recentAppointments = [
+                    { id: 1001, client: 'João Silva', artist: 'Augustos', date: '15/07/2024 - 14:00', status: 'approved' },
+                    { id: 1002, client: 'Maria Souza', artist: 'Clara', date: '16/07/2024 - 10:30', status: 'pending' },
+                    { id: 1003, client: 'Carlos Oliveira', artist: 'Isabela', date: '17/07/2024 - 16:00', status: 'completed' },
+                    { id: 1004, client: 'Ana Santos', artist: 'Ricardo', date: '18/07/2024 - 11:00', status: 'pending' }
+                ];
+                
+                const appointmentsTable = document.getElementById('recent-appointments');
+                appointmentsTable.innerHTML = recentAppointments.map(app => `
+                    <tr>
+                        <td>${app.client}</td>
+                        <td>${app.artist}</td>
+                        <td>${app.date}</td>
+                        <td><span class="status-badge status-${app.status}">${getStatusText(app.status)}</span></td>
+                        <td>
+                            <button class="action-btn view" data-id="${app.id}">
+                                <i class="fas fa-eye"></i> Ver
+                            </button>
+                            <button class="action-btn edit" data-id="${app.id}">
+                                <i class="fas fa-edit"></i> Editar
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+                
+                // Pedidos recentes
+                const recentOrders = [
+                    { id: 2001, client: 'João Silva', date: '14/07/2024', total: 'R$ 450,00', status: 'processing' },
+                    { id: 2002, client: 'Maria Souza', date: '13/07/2024', total: 'R$ 320,00', status: 'shipped' },
+                    { id: 2003, client: 'Carlos Oliveira', date: '12/07/2024', total: 'R$ 780,00', status: 'delivered' },
+                    { id: 2004, client: 'Ana Santos', date: '11/07/2024', total: 'R$ 150,00', status: 'cancelled' }
+                ];
+                
+                const ordersTable = document.getElementById('recent-orders');
+                ordersTable.innerHTML = recentOrders.map(order => `
+                    <tr>
+                        <td>#${order.id}</td>
+                        <td>${order.client}</td>
+                        <td>${order.total}</td>
+                        <td>${order.date}</td>
+                        <td><span class="status-badge status-${order.status}">${getOrderStatusText(order.status)}</span></td>
+                        <td>
+                            <button class="action-btn view" data-id="${order.id}">
+                                <i class="fas fa-eye"></i> Ver
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+                
+                // Todos usuários
+                const users = [
+                    { id: 1, name: 'Admin', email: 'admin@ravenstudio.com', avatar: '/img/avatars/admin.png', role: 'admin', joined: '01/01/2023' },
+                    { id: 2, name: 'Augustos', email: 'augustos@ravenstudio.com', avatar: '/img/artistas/augusto.png', role: 'artist', joined: '15/03/2023' },
+                    { id: 3, name: 'João Silva', email: 'joao@email.com', avatar: '/img/avatars/user1.jpg', role: 'client', joined: '20/05/2023' },
+                    { id: 4, name: 'Maria Souza', email: 'maria@email.com', avatar: '/img/avatars/user2.jpg', role: 'client', joined: '10/06/2023' }
+                ];
+                
+                const usersTable = document.getElementById('users-table-body');
+                usersTable.innerHTML = users.map(user => `
+                    <tr>
+                        <td><img src="${user.avatar}" class="user-avatar" alt="${user.name}"></td>
+                        <td>${user.name}</td>
+                        <td>${user.email}</td>
+                        <td>${user.joined}</td>
+                        <td>${getRoleText(user.role)}</td>
+                        <td>
+                            <button class="action-btn view" data-id="${user.id}">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="action-btn edit" data-id="${user.id}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="action-btn delete" data-id="${user.id}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+                
+                document.getElementById('total-users-count').textContent = users.length;
+            }, 500);
+        }
+        
+        function getStatusText(status) {
+            const statusMap = {
+                'pending': 'Pendente',
+                'approved': 'Aprovado',
+                'completed': 'Concluído',
+                'cancelled': 'Cancelado'
+            };
+            return statusMap[status] || status;
+        }
+        
+        function getOrderStatusText(status) {
+            const statusMap = {
+                'processing': 'Processando',
+                'shipped': 'Enviado',
+                'delivered': 'Entregue',
+                'cancelled': 'Cancelado'
+            };
+            return statusMap[status] || status;
+        }
+        
+        function getRoleText(role) {
+            const roleMap = {
+                'admin': 'Administrador',
+                'artist': 'Artista',
+                'client': 'Cliente'
+            };
+            return roleMap[role] || role;
+        }
+        
+        function setupEventListeners() {
+            // Sidebar navigation
+            document.querySelectorAll('.sidebar-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    // Remove active class from all items
+                    document.querySelectorAll('.sidebar-item').forEach(i => {
+                        i.classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked item
+                    this.classList.add('active');
+                    
+                    // Hide all sections
+                    document.querySelectorAll('.admin-section').forEach(section => {
+                        section.style.display = 'none';
+                    });
+                    
+                    // Show selected section
+                    const sectionId = this.getAttribute('data-section') + '-section';
+                    document.getElementById(sectionId).style.display = 'block';
+                });
+            });
+            
+            // Logout button
+            document.getElementById('logoutBtn').addEventListener('click', function() {
+                localStorage.removeItem('ravenStudioCurrentUser');
+                window.location.href = '/pages/login.html';
+            });
+            
+            // Add user button
+            document.getElementById('add-user-btn').addEventListener('click', function() {
+                document.getElementById('user-modal').classList.add('active');
+            });
+            
+            // Close user modal
+            document.getElementById('close-user-modal').addEventListener('click', function() {
+                document.getElementById('user-modal').classList.remove('active');
+            });
+            
+            document.getElementById('cancel-user').addEventListener('click', function() {
+                document.getElementById('user-modal').classList.remove('active');
+            });
+            
+            // Add product button
+            document.getElementById('add-product-btn').addEventListener('click', function() {
+                document.getElementById('product-modal').classList.add('active');
+            });
+            
+            // Close product modal
+            document.getElementById('close-product-modal').addEventListener('click', function() {
+                document.getElementById('product-modal').classList.remove('active');
+            });
+            
+            document.getElementById('cancel-product').addEventListener('click', function() {
+                document.getElementById('product-modal').classList.remove('active');
+            });
+            
+            // View appointment buttons
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.action-btn.view')) {
+                    const btn = e.target.closest('.action-btn.view');
+                    const appointmentId = btn.getAttribute('data-id');
+                    
+                    // Simular dados do agendamento
+                    const appointment = {
+                        id: appointmentId,
+                        clientName: 'João Silva',
+                        artistName: 'Augustos',
+                        date: '15/07/2024 às 14:00',
+                        style: 'Realismo',
+                        description: 'Tatuagem de dragão no braço direito, tamanho médio',
+                        budget: 'R$ 1.200,00',
+                        status: 'pending'
+                    };
+                    
+                    // Preencher modal
+                    document.getElementById('modal-client-name').textContent = appointment.clientName;
+                    document.getElementById('modal-artist-name').textContent = appointment.artistName;
+                    document.getElementById('modal-appointment-date').textContent = appointment.date;
+                    document.getElementById('modal-appointment-style').textContent = appointment.style;
+                    document.getElementById('modal-appointment-description').textContent = appointment.description;
+                    document.getElementById('modal-appointment-budget').textContent = appointment.budget;
+                    document.getElementById('modal-appointment-status').value = appointment.status;
+                    
+                    // Mostrar modal
+                    document.getElementById('appointment-modal').classList.add('active');
+                }
+                
+                // Close appointment modal
+                if (e.target.id === 'close-appointment-modal' || e.target.id === 'cancel-appointment') {
+                    document.getElementById('appointment-modal').classList.remove('active');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

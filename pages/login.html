@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | Raven Studio</title>
-        <link rel="icon" href="/img/raven.ico" type="image/x-icon">
-
+    <link rel="icon" href="/img/raven.ico" type="image/x-icon">
     <meta name="description" content="Entre na sua conta - Raven Studio">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -467,7 +466,7 @@
 
         <div class="success-message" id="success-message"></div>
     </div>
-<script src="/js/user-session.js"></script>
+
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script>
         // Inicializar partículas
@@ -489,6 +488,29 @@
                 }
             }
         });
+
+        // Verifica e cria um admin padrão se não existir
+        function initializeAdminUser() {
+            const users = JSON.parse(localStorage.getItem('ravenStudioUsers')) || [];
+            const adminExists = users.some(user => user.role === 'admin');
+            
+            if (!adminExists) {
+                const defaultAdmin = {
+                    id: 'admin_' + Date.now(),
+                    name: "Admin Raven",
+                    email: "admin@ravenstudio.com",
+                    password: "admin123",
+                    role: "admin",
+                    avatar: "/img/avatars/admin.png",
+                    createdAt: new Date().toISOString(),
+                    appointments: [],
+                    wishlist: []
+                };
+                
+                users.push(defaultAdmin);
+                localStorage.setItem('ravenStudioUsers', JSON.stringify(users));
+            }
+        }
 
         class AuthSystem {
             constructor() {
@@ -673,74 +695,77 @@
                 return isValid;
             }
 
-     handleLogin() {
-    if (!this.validateForm('login-form')) return;
+            handleLogin() {
+                if (!this.validateForm('login-form')) return;
 
-    const email = document.getElementById('login-email').value;
-    const password = document.getElementById('login-password').value;
+                const email = document.getElementById('login-email').value;
+                const password = document.getElementById('login-password').value;
 
-    const users = JSON.parse(localStorage.getItem('ravenStudioUsers')) || [];
-    const user = users.find(u => u.email === email && u.password === password);
+                const users = JSON.parse(localStorage.getItem('ravenStudioUsers')) || [];
+                const user = users.find(u => u.email === email && u.password === password);
 
-    if (user) {
-        // Adicione um console.log para verificar os dados antes de salvar
-        console.log("Usuário encontrado:", user);
-        
-        // Salva o usuário completo no localStorage
-        localStorage.setItem('ravenStudioCurrentUser', JSON.stringify(user));
-        
-        // Verifique se os dados foram salvos
-        console.log("Dados salvos no localStorage:", localStorage.getItem('ravenStudioCurrentUser'));
-        
-        if (window.userSession) {
-            window.userSession.login(user);
+                if (user) {
+                    // Salva o usuário completo no localStorage
+                    localStorage.setItem('ravenStudioCurrentUser', JSON.stringify(user));
+                    
+                    if (window.userSession) {
+                        window.userSession.login(user);
+                    }
+                    
+                    // Redireciona baseado no tipo de usuário
+                    setTimeout(() => {
+                        if (user.role === 'admin') {
+                            window.location.href = 'admin.html';
+                        } else {
+                            window.location.href = 'user.html';
+                        }
+                    }, 500);
+                } else {
+                    this.showError(document.getElementById('login-email'), 'E-mail ou senha incorretos');
+                    this.showError(document.getElementById('login-password'), 'E-mail ou senha incorretos');
+                }
+            }
+
+            handleRegister() {
+                if (!this.validateForm('register-form')) return;
+
+                const userData = {
+                    id: Date.now().toString(),
+                    name: document.getElementById('register-name').value + ' ' + 
+                          document.getElementById('register-lastname').value,
+                    email: document.getElementById('register-email').value,
+                    phone: document.getElementById('register-phone').value.replace(/\D/g, ''),
+                    password: document.getElementById('register-password').value,
+                    role: "client",
+                    joinDate: new Date().toISOString(),
+                    avatar: null,
+                    loyaltyPoints: 0,
+                    appointments: [],
+                    wishlist: []
+                };
+
+                const users = JSON.parse(localStorage.getItem('ravenStudioUsers')) || [];
+                
+                if (users.some(u => u.email === userData.email)) {
+                    this.showError(document.getElementById('register-email'), 'E-mail já cadastrado');
+                    return;
+                }
+
+                users.push(userData);
+                localStorage.setItem('ravenStudioUsers', JSON.stringify(users));
+                
+                // Faz login automaticamente
+                localStorage.setItem('ravenStudioCurrentUser', JSON.stringify(userData));
+                
+                if (window.userSession) {
+                    window.userSession.login(userData);
+                }
+                
+                setTimeout(() => {
+                    window.location.href = 'user.html';
+                }, 500);
+            }
         }
-        
-        // Redireciona após um breve delay
-        setTimeout(() => {
-            window.location.href = 'user.html';
-        }, 500);
-    } else {
-        this.showError(document.getElementById('login-email'), 'E-mail ou senha incorretos');
-        this.showError(document.getElementById('login-password'), 'E-mail ou senha incorretos');
-    }
-}
-handleRegister() {
-    if (!this.validateForm('register-form')) return;
-
-    const userData = {
-        id: Date.now().toString(),
-        name: document.getElementById('register-name').value + ' ' + 
-              document.getElementById('register-lastname').value,
-        email: document.getElementById('register-email').value,
-        phone: document.getElementById('register-phone').value.replace(/\D/g, ''),
-        password: document.getElementById('register-password').value,
-        joinDate: new Date().toISOString(),
-        avatar: null,
-        loyaltyPoints: 0,
-        orders: [], // Array vazio de pedidos
-        wishlist: [] // Array vazio de favoritos
-    };
-
-    const users = JSON.parse(localStorage.getItem('ravenStudioUsers')) || [];
-    
-    if (users.some(u => u.email === userData.email)) {
-        this.showError(document.getElementById('register-email'), 'E-mail já cadastrado');
-        return;
-    }
-
-    users.push(userData);
-    localStorage.setItem('ravenStudioUsers', JSON.stringify(users));
-    
-    // Faz login automaticamente
-    if (window.userSession) {
-        window.userSession.login(userData);
-    }
-    
-    setTimeout(() => {
-        window.location.href = 'user.html';
-    }, 500);
-}}
 
         // Global functions
         function togglePassword(inputId) {
@@ -771,8 +796,12 @@ handleRegister() {
                 email: 'usuario@gmail.com',
                 phone: '(11)99999-9999',
                 cpf: '000.000.000-00',
+                role: "client",
                 loginMethod: 'google',
-                createdAt: new Date().toISOString()
+                createdAt: new Date().toISOString(),
+                avatar: null,
+                appointments: [],
+                wishlist: []
             };
 
             localStorage.setItem('ravenStudioCurrentUser', JSON.stringify(googleUser));
@@ -788,20 +817,10 @@ handleRegister() {
 
         // Initialize auth system
         document.addEventListener('DOMContentLoaded', () => {
+            initializeAdminUser();
             new AuthSystem();
         });
-        // Após login bem-sucedido
-function handleLoginSuccess(user) {
-    // Verifica se há um parâmetro de redirecionamento
-    const urlParams = new URLSearchParams(window.location.search);
-    const redirect = urlParams.get('redirect');
-    
-    if (redirect === 'checkout') {
-        window.location.href = 'pagamento.html';
-    } else {
-        window.location.href = 'user.html';
-    }
-}
     </script>
+    <script src="/js/user-session.js"></script>
 </body>
 </html>
