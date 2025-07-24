@@ -39,7 +39,7 @@ class UserSession {
         
         // Redireciona baseado no tipo de usuário
         if (this.isAdmin()) {
-            setTimeout(() => window.location.href = 'admin.html', 300);
+            setTimeout(() => window.location.href = 'adm.html', 300);
         } else {
             setTimeout(() => window.location.href = 'user.html', 300);
         }
@@ -215,14 +215,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Se está na página de admin e não é admin, redireciona
-    if (currentPage === 'admin.html' && !window.userSession.isAdmin()) {
+    if (currentPage === 'adm.html' && !window.userSession.isAdmin()) {
         window.location.href = 'login.html';
     }
     
     // Se está na página de login e já está logado, redireciona
     if (currentPage === 'login.html' && window.userSession.isLoggedIn()) {
         if (window.userSession.isAdmin()) {
-            window.location.href = 'admin.html';
+            window.location.href = 'adm.html';
         } else {
             window.location.href = 'user.html';
         }
